@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 6 6
 V.H.V.
 ....H.
@@ -6,10 +5,3 @@ H.T.VV
 ....HV
 VHH...
 ...H.V
-=======
-4 4
-HVHV
-VHVH
-HVTV
-.HVH
->>>>>>> a40725cfc0dde6137ad474766052bcb7c3cb4f79

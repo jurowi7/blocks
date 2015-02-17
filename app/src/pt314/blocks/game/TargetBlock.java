@@ -1,5 +1,4 @@
-package pt314.blocks.game.block;
-
+package pt314.blocks.game;
 
 /**
  * This is that target block, which must be moved out of the board.

@@ -1,4 +1,4 @@
-package pt314.blocks.game.block;
+package pt314.blocks.game;
 
 /**
  * Possible move directions.

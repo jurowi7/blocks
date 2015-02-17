@@ -1,12 +1,9 @@
-package pt314.blocks.game.block;
+package pt314.blocks.game;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import pt314.blocks.game.block.Block;
-import pt314.blocks.game.block.TargetBlock;
 
 /**
  * JUnit tests for <code>TargetBlock</code>.

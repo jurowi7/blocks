@@ -5,7 +5,12 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -25,9 +30,10 @@ import pt314.blocks.game.VerticalBlock;
  */
 public class SimpleGUI extends JFrame implements ActionListener {
 
-	private static final int NUM_ROWS = 5;
-	private static final int NUM_COLS = 5;
-
+	private static int NUM_ROWS;
+	private static int NUM_COLS;
+	private static String[] boardSetup;
+	
 	private GameBoard board;
 	
 	// currently selected block
@@ -43,8 +49,32 @@ public class SimpleGUI extends JFrame implements ActionListener {
 	private JMenuItem exitMenuItem;
 	private JMenuItem aboutMenuItem;
 	
-	public SimpleGUI() {
+	public SimpleGUI() throws NumberFormatException, IOException, FileNotFoundException {
 		super("Blocks");
+		FileReader reader = new FileReader("res/puzzles/puzzle-003.txt");
+	    BufferedReader inputFile = new BufferedReader(reader);
+		String line = null;
+		int count = 0;
+		
+		// Read in file containing number of rows and columns in first line, 
+		// the configuration of the rows and columns in the rest of the lines
+        while ((line = inputFile.readLine())!= null) {
+            if(count == 0) {
+            	// Find number of rows and columns for the game board
+            	String[] arrayLine= line.split("\\s+");
+	            NUM_ROWS = Integer.parseInt(arrayLine[0]);
+	            NUM_COLS = Integer.parseInt(arrayLine[1]);
+	            if (NUM_ROWS < 1 || NUM_COLS < 1) {
+	            	throw new NumberFormatException("Row and column values must be 1 or greater.");
+	            }
+	            boardSetup = new String[NUM_ROWS];
+            }
+            else {
+            	// Get the configurations of the rows and columns on the board
+            	boardSetup[count-1] = line;
+            }
+            count++;
+	    }
 		
 		initMenus();
 		
@@ -68,7 +98,13 @@ public class SimpleGUI extends JFrame implements ActionListener {
 		newGameMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(SimpleGUI.this, "Coming soon...");
+				try {
+					new SimpleGUI();
+				} catch (NumberFormatException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		gameMenu.add(newGameMenuItem);
@@ -99,6 +135,10 @@ public class SimpleGUI extends JFrame implements ActionListener {
 	private void initBoard() {
 		board = new GameBoard(NUM_COLS, NUM_ROWS);
 		buttonGrid = new GridButton[NUM_ROWS][NUM_COLS];
+		char[] cellIdentifier = new char[NUM_COLS];
+		int targetBlockCount = 0;
+		int targetBlockLocationInRow = 0;
+		boolean targetBlockFound = false;
 		
 		setLayout(new GridLayout(NUM_ROWS, NUM_COLS));
 		for (int row = 0; row < NUM_ROWS; row++) {
@@ -111,13 +151,33 @@ public class SimpleGUI extends JFrame implements ActionListener {
 				add(cell);
 			}
 		}
-		
-		// add some blocks for testing...
-		board.placeBlockAt(new HorizontalBlock(), 0, 0);
-		board.placeBlockAt(new HorizontalBlock(), 4, 4);
-		board.placeBlockAt(new VerticalBlock(), 1, 3);
-		board.placeBlockAt(new VerticalBlock(), 3, 1);
-		board.placeBlockAt(new TargetBlock(), 2, 2);
+		// Put color blocks on the board
+		for(int row = 0; row < boardSetup.length; row++) {
+			cellIdentifier = boardSetup[row].toCharArray();
+			for(int col = 0; col < cellIdentifier.length; col++) {
+				if(cellIdentifier[col] == 'H')
+					board.placeBlockAt(new HorizontalBlock(), row, col);
+				if(cellIdentifier[col] == 'V')
+					board.placeBlockAt(new VerticalBlock(), row, col);
+				if(cellIdentifier[col] == 'T') {
+					board.placeBlockAt(new TargetBlock(), row, col);
+					targetBlockLocationInRow = col;
+					targetBlockFound = true;
+					targetBlockCount++;	
+				}
+			}
+			// Verify that there are no horizontal blocks to the right of the target block
+			if(targetBlockFound == true) {
+				for(int i = targetBlockLocationInRow; i < NUM_COLS; i++) {
+					if(cellIdentifier[i] == 'H')
+						throw new NumberFormatException("Can't have any horizontal blocks to the right of the target block.");
+				}
+				targetBlockFound = false;
+			}
+		}
+		// Verify that there is only one target block.
+		if(targetBlockCount != 1)
+			throw new NumberFormatException("Must have one target block.");
 		
 		updateUI();
 	}
@@ -125,18 +185,23 @@ public class SimpleGUI extends JFrame implements ActionListener {
 	// Update display based on the state of the board...
 	// TODO: make this more efficient
 	private void updateUI() {
+		ImageIcon grey_block = new ImageIcon("res/images/grey_block.jpg");
+		ImageIcon yellow_block = new ImageIcon("res/images/yellow_block.jpg");
+		ImageIcon blue_block = new ImageIcon("res/images/blue_block.jpg");
+		ImageIcon red_block = new ImageIcon("res/images/red_block.jpg");
+		
 		for (int row = 0; row < NUM_ROWS; row++) {
 			for (int col = 0; col < NUM_COLS; col++) {
 				Block block = board.getBlockAt(row, col);
 				JButton cell = buttonGrid[row][col];
 				if (block == null)
-					cell.setBackground(Color.LIGHT_GRAY);
+					cell.setIcon(grey_block);
 				else if (block instanceof TargetBlock)
-					cell.setBackground(Color.YELLOW);
+					cell.setIcon(yellow_block);
 				else if (block instanceof HorizontalBlock)
-					cell.setBackground(Color.BLUE);
+					cell.setIcon(blue_block);
 				else if (block instanceof VerticalBlock)
-					cell.setBackground(Color.RED);
+					cell.setIcon(red_block);
 			}
 		}
 	}

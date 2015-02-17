@@ -1,5 +1,7 @@
 package pt314.blocks.game;
 
+import javax.swing.JOptionPane;
+
 public class GameBoard {
 
 	private int width;
@@ -39,7 +41,7 @@ public class GameBoard {
 		// TODO: throw exception if move is invalid, instead of using return value
 		
 		Block block = blocks[row][col];
-
+		
 		// no block at specified location
 		if (block == null)
 			return false;
@@ -87,6 +89,12 @@ public class GameBoard {
 		
 		blocks[newRow][newCol] = blocks[row][col];
 		blocks[row][col] = null;
+		
+		// target block has reached destination
+		if(block instanceof TargetBlock && reachedDestination(newCol)) {
+			JOptionPane.showMessageDialog(null, "You reached the destination!", "InfoBox: " + "Puzzle Finished", JOptionPane.INFORMATION_MESSAGE);
+		}
+		
 		return true;
 	}
 	
@@ -120,5 +128,14 @@ public class GameBoard {
 			System.out.println();
 		}
 		System.out.println();
+	}
+	
+	/**
+	 * Check if a location is inside the board.
+	 */
+	public boolean reachedDestination(int newCol) {
+		if (newCol == width-1)
+			return true;
+		return false;
 	}
 }

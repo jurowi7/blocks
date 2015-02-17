@@ -1,18 +1,18 @@
 package pt314.blocks;
 
-import pt314.blocks.game.Block;
-import pt314.blocks.game.Direction;
-import pt314.blocks.game.GameBoard;
-import pt314.blocks.game.HorizontalBlock;
+import pt314.blocks.game.Board;
+import pt314.blocks.game.block.Block;
+import pt314.blocks.game.block.Direction;
+import pt314.blocks.game.block.HorizontalBlock;
 
 /**
  * Just a test...
  */
 public class Test {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
-		GameBoard board = new GameBoard(5, 3);
+		Board board = new Board(3, 5);
 		
 		Block block1 = new HorizontalBlock();
 		
@@ -20,8 +20,13 @@ public class Test {
 		
 		board.print();
 		for (int i = 0; i < 5; i++) {
-			boolean result = board.moveBlock(0, i, Direction.RIGHT, 1);
-			System.out.println(result);
+			try {
+				boolean result = board.moveBlock(0, i, Direction.RIGHT, 1);
+				System.out.println(result);
+			}
+			catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
 			board.print();
 		}
 	}

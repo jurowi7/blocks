@@ -1,4 +1,5 @@
-package pt314.blocks.game;
+package pt314.blocks.game.block;
+
 
 /**
  * This type of block can only move horizontally (left or right).
